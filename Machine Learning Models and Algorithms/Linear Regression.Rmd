@@ -1,0 +1,94 @@
+---
+title: "Linear Regression"
+author: 'Haolin Zhong (UNI: hz2771)'
+date: "2021/10/1"
+output: 
+  github_document:
+    pandoc_args: --webtex
+---
+
+# Unary Linear Regression: Core ideas
+
+- Find $f(x_i) = wx_i + b$, making $f(x_i) \simeq y_i$
+
+- Least square method: $\displaystyle (w^*, b^*) = arg\space min _{(w, b)} \sum_{i=1}^{m} (f(x_i) - y_i)^2$
+
+- Loss function: $E(w, b) = \displaystyle \sum_{i=1}^{m} (f(x_i) - y_i)^2$
+
+- When $\frac {\partial E(w, b)}{\partial w} = 0$, $\frac {\partial E(w, b)}{\partial b} = 0$, min loss achieved. (the derivatives are monotonically increasing)
+    - $w=\frac{\sum_{i=1}^{m} y_{i}\left(x_{i}-\bar{x}\right)}{\sum_{i=1}^{m} x_{i}^{2}-\frac{1}{m}\left(\sum_{i=1}^{m} x_{i}\right)^{2}}$
+    - $b=\frac{1}{m} \displaystyle \sum_{i=1}^{m}\left(y_{i}-w x_{i}\right)$
+    
+
+# Practice
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+## Import data
+
+```{python}
+points = np.genfromtxt("../Data/data.csv", delimiter=',')
+
+X = points[:, 0]
+Y = points[:, 1]
+
+plt.scatter(X,Y)
+plt.show()
+```
+
+## Define cost function
+
+```{python}
+def compute_cost(w, b, points):
+    X = points[:, 0]
+    Y = points[:, 1]
+    
+    costs = (Y - w * X - b) ** 2
+    
+    return np.mean(costs)
+```
+
+
+## Define fit function
+
+```{python}
+def fit(points):
+    X = points[:, 0]
+    Y = points[:, 1]
+    N = len(points)
+    
+    YX = np.sum(Y * (X - np.mean(X)))
+    X2 = np.sum(X**2)
+    
+    w = YX / (X2 - N*(np.mean(X)**2))
+    
+    b = np.mean(Y - w*X)
+    
+    return w, b
+
+```
+
+## Test
+
+```{python}
+w, b = fit(points)
+
+print("w is " + str(w) + ", " + "b is " + str(b))
+
+print("cost is " + str(compute_cost(w, b, points)))
+```
+
+## Visualize the fit line
+
+```{python}
+pred_Y = w * X + b
+
+plt.close()
+plt.scatter(X, Y)
+plt.plot(X, pred_Y, c = 'r')
+plt.show()
+```
+
