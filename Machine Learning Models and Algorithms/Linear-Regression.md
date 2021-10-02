@@ -24,14 +24,14 @@ Haolin Zhong (UNI: hz2771)
     -   ![w=\\frac{\\sum\_{i=1}^{m} y\_{i}\\left(x\_{i}-\\bar{x}\\right)}{\\sum\_{i=1}^{m} x\_{i}^{2}-\\frac{1}{m}\\left(\\sum\_{i=1}^{m} x\_{i}\\right)^{2}}](https://latex.codecogs.com/png.latex?w%3D%5Cfrac%7B%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%20y_%7Bi%7D%5Cleft%28x_%7Bi%7D-%5Cbar%7Bx%7D%5Cright%29%7D%7B%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%20x_%7Bi%7D%5E%7B2%7D-%5Cfrac%7B1%7D%7Bm%7D%5Cleft%28%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%20x_%7Bi%7D%5Cright%29%5E%7B2%7D%7D "w=\frac{\sum_{i=1}^{m} y_{i}\left(x_{i}-\bar{x}\right)}{\sum_{i=1}^{m} x_{i}^{2}-\frac{1}{m}\left(\sum_{i=1}^{m} x_{i}\right)^{2}}")
     -   ![b=\\frac{1}{m} \\displaystyle \\sum\_{i=1}^{m}\\left(y\_{i}-w x\_{i}\\right)](https://latex.codecogs.com/png.latex?b%3D%5Cfrac%7B1%7D%7Bm%7D%20%5Cdisplaystyle%20%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%5Cleft%28y_%7Bi%7D-w%20x_%7Bi%7D%5Cright%29 "b=\frac{1}{m} \displaystyle \sum_{i=1}^{m}\left(y_{i}-w x_{i}\right)")
 
-# Practice
+## Practice
 
 ``` python
 import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-## Import data
+### Import data
 
 ``` python
 points = np.genfromtxt("../Data/data.csv", delimiter=',')
@@ -45,7 +45,7 @@ plt.show()
 
 <img src="Linear-Regression_files/figure-gfm/unnamed-chunk-2-1.png" width="672" />
 
-## Define cost function
+### Define cost function
 
 ``` python
 def compute_cost(w, b, points):
@@ -57,7 +57,7 @@ def compute_cost(w, b, points):
     return np.mean(costs)
 ```
 
-## Define fit function
+### Define fit function
 
 ``` python
 def fit(points):
@@ -75,7 +75,7 @@ def fit(points):
     return w, b
 ```
 
-## Test
+### Test
 
 ``` python
 w, b = fit(points)
@@ -91,7 +91,7 @@ print("cost is " + str(compute_cost(w, b, points)))
 
     ## cost is 110.25738346621316
 
-## Visualize the fit line
+### Visualize the fit line
 
 ``` python
 pred_Y = w * X + b
@@ -106,7 +106,132 @@ plt.show()
 
 # Solving Multiple Linear Regression by Gradient Descent
 
+## Core ideas
+
 -   ![\\quad h\_{\\theta}(x)=X^{T} \\theta=\\sum\_{k=0}^{n} \\theta\_{k} x\_{k}](https://latex.codecogs.com/png.latex?%5Cquad%20h_%7B%5Ctheta%7D%28x%29%3DX%5E%7BT%7D%20%5Ctheta%3D%5Csum_%7Bk%3D0%7D%5E%7Bn%7D%20%5Ctheta_%7Bk%7D%20x_%7Bk%7D "\quad h_{\theta}(x)=X^{T} \theta=\sum_{k=0}^{n} \theta_{k} x_{k}")
 -   ![J(\\theta)=\\frac{1}{m} \\sum\_{i=1}^{m}\\left(h\_{\\theta}\\left(x^{(i)}\\right)-y^{(i)}\\right)^{2}](https://latex.codecogs.com/png.latex?J%28%5Ctheta%29%3D%5Cfrac%7B1%7D%7Bm%7D%20%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%5Cleft%28h_%7B%5Ctheta%7D%5Cleft%28x%5E%7B%28i%29%7D%5Cright%29-y%5E%7B%28i%29%7D%5Cright%29%5E%7B2%7D "J(\theta)=\frac{1}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right)^{2}")
 -   ![\\theta\_{n+1}=\\theta\_{n}-\\alpha \\cdot \\frac{\\partial J(\\theta\_{n})}{\\partial \\theta\_n}](https://latex.codecogs.com/png.latex?%5Ctheta_%7Bn%2B1%7D%3D%5Ctheta_%7Bn%7D-%5Calpha%20%5Ccdot%20%5Cfrac%7B%5Cpartial%20J%28%5Ctheta_%7Bn%7D%29%7D%7B%5Cpartial%20%5Ctheta_n%7D "\theta_{n+1}=\theta_{n}-\alpha \cdot \frac{\partial J(\theta_{n})}{\partial \theta_n}")
 -   ![\\begin{aligned} \\frac{\\partial J(\\theta)}{\\partial \\theta\_{j}} &=\\frac{\\partial}{\\partial \\theta\_{j}} \\frac{1}{m} \\sum\_{i=1}\\left(h\_{\\theta}\\left(x^{(i)}\\right)-y^{(i)}\\right)^{2} \\\\ &=2 \\cdot \\frac{1}{m} \\sum\_{i=1}^{m}\\left(h\_{\\theta}\\left(x^{(i)}\\right)-y^{(i)}\\right) \\cdot \\frac{\\partial}{\\partial \\theta\_{j}}\\left(h\_{\\theta}\\left(x^{(i)}\\right)-y^{(i)}\\right) \\\\ &=\\frac{2}{m} \\sum\_{i=1}^{m}\\left(h\_{\\theta}\\left(x^{(i)}\\right)-y^{(i)}\\right) \\cdot \\frac{\\partial}{\\partial \\theta\_{j}}\\left(\\sum\_{k=0}^{n} \\theta\_{k} x\_{k}^{(i)}-y^{(i)}\\right) \\\\ &=\\frac{2}{m} \\sum\_{i=1}^{m}\\left(h\_{\\theta}\\left(x^{(i)}\\right)-y^{(i)}\\right) \\cdot x\_{j}^{(i)} \\end{aligned}](https://latex.codecogs.com/png.latex?%5Cbegin%7Baligned%7D%20%5Cfrac%7B%5Cpartial%20J%28%5Ctheta%29%7D%7B%5Cpartial%20%5Ctheta_%7Bj%7D%7D%20%26%3D%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20%5Ctheta_%7Bj%7D%7D%20%5Cfrac%7B1%7D%7Bm%7D%20%5Csum_%7Bi%3D1%7D%5Cleft%28h_%7B%5Ctheta%7D%5Cleft%28x%5E%7B%28i%29%7D%5Cright%29-y%5E%7B%28i%29%7D%5Cright%29%5E%7B2%7D%20%5C%5C%20%26%3D2%20%5Ccdot%20%5Cfrac%7B1%7D%7Bm%7D%20%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%5Cleft%28h_%7B%5Ctheta%7D%5Cleft%28x%5E%7B%28i%29%7D%5Cright%29-y%5E%7B%28i%29%7D%5Cright%29%20%5Ccdot%20%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20%5Ctheta_%7Bj%7D%7D%5Cleft%28h_%7B%5Ctheta%7D%5Cleft%28x%5E%7B%28i%29%7D%5Cright%29-y%5E%7B%28i%29%7D%5Cright%29%20%5C%5C%20%26%3D%5Cfrac%7B2%7D%7Bm%7D%20%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%5Cleft%28h_%7B%5Ctheta%7D%5Cleft%28x%5E%7B%28i%29%7D%5Cright%29-y%5E%7B%28i%29%7D%5Cright%29%20%5Ccdot%20%5Cfrac%7B%5Cpartial%7D%7B%5Cpartial%20%5Ctheta_%7Bj%7D%7D%5Cleft%28%5Csum_%7Bk%3D0%7D%5E%7Bn%7D%20%5Ctheta_%7Bk%7D%20x_%7Bk%7D%5E%7B%28i%29%7D-y%5E%7B%28i%29%7D%5Cright%29%20%5C%5C%20%26%3D%5Cfrac%7B2%7D%7Bm%7D%20%5Csum_%7Bi%3D1%7D%5E%7Bm%7D%5Cleft%28h_%7B%5Ctheta%7D%5Cleft%28x%5E%7B%28i%29%7D%5Cright%29-y%5E%7B%28i%29%7D%5Cright%29%20%5Ccdot%20x_%7Bj%7D%5E%7B%28i%29%7D%20%5Cend%7Baligned%7D "\begin{aligned} \frac{\partial J(\theta)}{\partial \theta_{j}} &=\frac{\partial}{\partial \theta_{j}} \frac{1}{m} \sum_{i=1}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right)^{2} \\ &=2 \cdot \frac{1}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \cdot \frac{\partial}{\partial \theta_{j}}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \\ &=\frac{2}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \cdot \frac{\partial}{\partial \theta_{j}}\left(\sum_{k=0}^{n} \theta_{k} x_{k}^{(i)}-y^{(i)}\right) \\ &=\frac{2}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \cdot x_{j}^{(i)} \end{aligned}")
+
+## Practice
+
+Use previous data and loss function.
+
+### Define hyper parameters
+
+``` python
+alpha = 0.0001
+w0 = 0
+b0 = 0
+num_iter = 10
+```
+
+### Define gradient descent function
+
+``` python
+def grad_desc(points, w0, b0, alpha, num_iter):
+    w = w0
+    b = b0
+    
+    # define a list to store the loss values for every step
+    costs = []
+    
+    for i in range(num_iter):
+        costs.append(compute_cost(w, b, points))
+        w, b = step_grad_desc(w, b, alpha, points)
+    
+    return w, b, costs
+
+
+def step_grad_desc(w, b, alpha, points):
+  
+    X = points[:, 0]
+    Y = points[:, 1]
+    
+    # Calculate grad_w and grad_b by formula
+    grad_w = np.mean((w * X + b - Y) * X) * 2
+    grad_b = np.mean(w * X + b - Y) * 2
+    
+    # Update w and b
+    w1 = w - alpha * grad_w
+    b1 = b - alpha * grad_b
+    
+    return w1, b1
+    
+```
+
+### Test
+
+``` python
+w, b, costs = grad_desc(points, w0, b0, alpha, num_iter) 
+
+print("w is " + str(w))
+```
+
+    ## w is 1.4774173755483797
+
+``` python
+print("b is " + str(b))
+```
+
+    ## b is 0.029639347874732377
+
+``` python
+plt.close()
+plt.plot(costs)
+plt.show()
+```
+
+<img src="Linear-Regression_files/figure-gfm/unnamed-chunk-9-5.png" width="672" />
+
+### Visualize the results
+
+``` python
+X = points[:, 0]
+Y = points[:, 1]
+pred_Y = w*X + b
+
+plt.close()
+plt.scatter(X, Y)
+plt.plot(X, pred_Y, c = 'r')
+plt.show()
+```
+
+<img src="Linear-Regression_files/figure-gfm/unnamed-chunk-10-7.png" width="672" />
+
+# Linear Regression by sklean
+
+``` python
+from sklearn.linear_model import LinearRegression
+
+X_new = X.reshape(-1, 1)
+Y_new = Y.reshape(-1, 1)
+
+lr = LinearRegression()
+lr.fit(X_new, Y_new)
+```
+
+    ## LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
+
+``` python
+w = lr.coef_[0][0]
+b = lr.intercept_[0]
+
+print("w is " + str(w))
+```
+
+    ## w is 1.3224310227553597
+
+``` python
+print("b is " + str(b))
+```
+
+    ## b is 7.991020982270399
+
+``` python
+cost = compute_cost(w, b, points)
+
+print("cost is " + str(cost))
+```
+
+    ## cost is 110.25738346621316

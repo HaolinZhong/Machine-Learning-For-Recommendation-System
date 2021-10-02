@@ -1,0 +1,153 @@
+---
+title: "KNN"
+author: 'Haolin Zhong (UNI: hz2771)'
+date: "2021/10/2"
+output: 
+    github_document:
+      pandoc_args: --webtex
+---
+
+# KNN
+
+## Core ideas
+
+- Classify one point by its K Nearest Neighbor's category
+
+- Distances:
+    - Euclidean distance: $d(x, y)=\sqrt{\displaystyle \sum_{k=1}^{n}\left(x_{k}-y_{k}\right)^{2}}$
+    - Manhattan: $d(x, y)=\sqrt{\displaystyle \sum_{k=1}^{n}\left|x_{k}-y_{k}\right|}$
+
+## Practice
+
+### Import dependency
+
+```{python}
+import numpy as np
+import pandas as pd
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+```
+
+### Load and preprocess data
+
+#### Inspect dataset
+
+```{python}
+iris = load_iris() # It returns a dictionary containing feature, target and descriptions
+iris_df = pd.DataFrame(data = iris.data, columns = iris.feature_names)
+
+iris_df['class'] = iris.target
+iris_df['class'] = iris_df['class'].map({0:iris.target_names[0], 1:iris.target_names[1], 2:iris.target_names[2]})
+
+iris_df.describe()
+```
+
+#### Define features and target
+
+```{python}
+
+X = iris.data
+Y = iris.target.reshape(-1, 1)
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.3, 
+                                                    random_state = 35, 
+                                                    stratify = Y)
+# stratify = Y: keep proportion of Y same with original data in train/test data 
+```
+
+
+### Core algorithms
+
+```{python}
+
+# distance function
+
+def l1_distance(a, b):
+    # a can be a matrix, be must be a vector
+    # axis = 1: sum at row level and return one column
+    return np.sum(np.abs(a-b), axis = 1)
+
+
+def l2_distance(a, b):
+    return np.sqrt(np.sum((a-b)**2, axis = 1))
+  
+  
+# classfication
+
+class KNN(object):
+    def __init__(self, n_neighbors = 1, dist_func = l1_distance):
+        self.n_neighbors = n_neighbors
+        self.dist_func = dist_func
+    
+    def fit(self, X, Y):
+        # for KNN, there is actually no fitting process. We only need marked train data.
+        self.X_train = X
+        self.Y_train = Y
+        
+    def predict(self, X_test):
+        Y_pred = np.zeros((X_test.shape[0], 1), dtype = self.Y_train.dtype)
+        
+        for i, x_test in enumerate(X_test):
+            # calculate the distance between this test points and every train points
+            distances = self.dist_func(self.X_train, x_test)
+            
+            # order by distance, get index value
+            nn_index = np.argsort(distances)
+            
+            # select nearest k points, store their categories
+            nn_Y = self.Y_train[nn_index[:self.n_neighbors]].ravel()
+                # ravel: reshape into 1D array
+            
+            # find the category which appears most
+            Y_pred[i] = np.argmax(np.bincount(nn_Y))
+                # bincount: count how many times that each value apppears
+        
+        return Y_pred
+```
+
+### Test
+
+```{python}
+knn = KNN(n_neighbors = 3)
+knn.fit(X_train, Y_train)
+Y_pred = knn.predict(X_test)
+
+# Calculate accuracy
+
+accuracy = accuracy_score(Y_test, Y_pred)
+
+print("Prediction accuracy:" + str(accuracy))
+```
+
+#### parameter selection
+
+```{python}
+knn = KNN()
+knn.fit(X_train, Y_train)
+results = []
+
+# parameter selection
+# select distance function and n_neighbors
+
+for p in [1, 2]:
+    knn.dist_func = l1_distance if p == 1 else l2_distance
+    
+    for k in range(1, 10, 2):
+        knn.n_neighbors = k
+        Y_pred = knn.predict(X_test)
+        accuracy = accuracy_score(Y_test, Y_pred)
+        results.append([k, p, accuracy])
+
+
+df = pd.DataFrame(results, columns = ['k', 'dist_func', 'accuracy'])
+
+df
+```
+
+
+
+
+
