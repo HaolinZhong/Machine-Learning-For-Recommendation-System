@@ -179,4 +179,29 @@ plt.plot(X, pred_Y, c = 'r')
 plt.show()
 ```
 
+# Linear Regression by sklean
+
+```{python}
+from sklearn.linear_model import LinearRegression
+
+X_new = X.reshape(-1, 1)
+Y_new = Y.reshape(-1, 1)
+
+lr = LinearRegression()
+lr.fit(X_new, Y_new)
+
+w = lr.coef_[0][0]
+b = lr.intercept_[0]
+
+print("w is " + str(w))
+print("b is " + str(b))
+
+cost = compute_cost(w, b, points)
+
+print("cost is " + str(cost))
+```
+
+
+
+
 
