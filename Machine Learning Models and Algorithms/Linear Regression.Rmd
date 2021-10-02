@@ -20,14 +20,14 @@ output:
     - $b=\frac{1}{m} \displaystyle \sum_{i=1}^{m}\left(y_{i}-w x_{i}\right)$
     
 
-# Practice
+## Practice
 
 ```{python}
 import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-## Import data
+### Import data
 
 ```{python}
 points = np.genfromtxt("../Data/data.csv", delimiter=',')
@@ -39,7 +39,7 @@ plt.scatter(X,Y)
 plt.show()
 ```
 
-## Define cost function
+### Define cost function
 
 ```{python}
 def compute_cost(w, b, points):
@@ -52,7 +52,7 @@ def compute_cost(w, b, points):
 ```
 
 
-## Define fit function
+### Define fit function
 
 ```{python}
 def fit(points):
@@ -71,7 +71,7 @@ def fit(points):
 
 ```
 
-## Test
+### Test
 
 ```{python}
 w, b = fit(points)
@@ -81,7 +81,7 @@ print("w is " + str(w) + ", " + "b is " + str(b))
 print("cost is " + str(compute_cost(w, b, points)))
 ```
 
-## Visualize the fit line
+### Visualize the fit line
 
 ```{python}
 pred_Y = w * X + b
@@ -91,4 +91,92 @@ plt.scatter(X, Y)
 plt.plot(X, pred_Y, c = 'r')
 plt.show()
 ```
+
+
+# Solving Multiple Linear Regression by Gradient Descent 
+
+## Core ideas
+
+- $\quad h_{\theta}(x)=X^{T} \theta=\sum_{k=0}^{n} \theta_{k} x_{k}$
+- $J(\theta)=\frac{1}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right)^{2}$ 
+- $\theta_{n+1}=\theta_{n}-\alpha \cdot \frac{\partial J(\theta_{n})}{\partial \theta_n}$
+- $\begin{aligned} \frac{\partial J(\theta)}{\partial \theta_{j}}  &=\frac{\partial}{\partial \theta_{j}} \frac{1}{m} \sum_{i=1}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right)^{2} \\ &=2 \cdot \frac{1}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \cdot \frac{\partial}{\partial \theta_{j}}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \\ &=\frac{2}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \cdot \frac{\partial}{\partial \theta_{j}}\left(\sum_{k=0}^{n} \theta_{k} x_{k}^{(i)}-y^{(i)}\right) \\ &=\frac{2}{m} \sum_{i=1}^{m}\left(h_{\theta}\left(x^{(i)}\right)-y^{(i)}\right) \cdot x_{j}^{(i)} \end{aligned}$
+
+## Practice
+
+Use previous data and loss function.
+
+### Define hyper parameters
+
+```{python}
+alpha = 0.0001
+w0 = 0
+b0 = 0
+num_iter = 10
+```
+
+### Define gradient descent function
+
+```{python}
+
+def grad_desc(points, w0, b0, alpha, num_iter):
+    w = w0
+    b = b0
+    
+    # define a list to store the loss values for every step
+    costs = []
+    
+    for i in range(num_iter):
+        costs.append(compute_cost(w, b, points))
+        w, b = step_grad_desc(w, b, alpha, points)
+    
+    return w, b, costs
+
+
+def step_grad_desc(w, b, alpha, points):
+  
+    X = points[:, 0]
+    Y = points[:, 1]
+    
+    # Calculate grad_w and grad_b by formula
+    grad_w = np.mean((w * X + b - Y) * X) * 2
+    grad_b = np.mean(w * X + b - Y) * 2
+    
+    # Update w and b
+    w1 = w - alpha * grad_w
+    b1 = b - alpha * grad_b
+    
+    return w1, b1
+    
+```
+
+
+
+### Test
+
+```{python}
+w, b, costs = grad_desc(points, w0, b0, alpha, num_iter) 
+
+print("w is " + str(w))
+print("b is " + str(b))
+
+plt.close()
+plt.plot(costs)
+plt.show()
+```
+
+
+### Visualize the results
+
+```{python}
+X = points[:, 0]
+Y = points[:, 1]
+pred_Y = w*X + b
+
+plt.close()
+plt.scatter(X, Y)
+plt.plot(X, pred_Y, c = 'r')
+plt.show()
+```
+
 
