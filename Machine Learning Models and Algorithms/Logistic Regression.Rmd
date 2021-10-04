@@ -1,0 +1,44 @@
+---
+title: "Logistic Regression"
+author: 'Haolin Zhong (UNI: hz2771)'
+date: "2021/10/3"
+output: 
+  github_document:
+      pandoc_args: --webtex
+---
+
+# Core ideas
+
+- Find a best curve as the boundary between target categories
+- sigmoid function: $g(z)=\frac{1}{1+e^{-z}}$; $z = h_\theta(x)$; $h_\theta(x)$ can be a high order fucntion
+
+```{r echo=FALSE, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+
+x = -6000:6000 / 1000
+y = 1 / (1 + exp(1)**(-x))
+
+data = tibble(x = x, y = y)
+ggplot(data, aes(x = x, y = y)) + 
+  geom_point() +
+  geom_vline(xintercept = 0) +
+  labs(title = "Sigmoid Function")
+```
+
+- Loss function:
+    - MSE: cannot guanranteed to be a convex function
+    - loss shouldn't be defined as $g(Z) - Y$, because in such definition 
+    there is basically no difference being right or wrong nearing z = 0
+    - The idea cost function should drastically decrease nearing 0, then slowly
+    decrease with abs(z) grows. A log function do meet this demand, and it is also
+    able to simplify the exponential function
+    - $\operatorname{Cost}\left(h_{\theta}(x), y\right)=\left\{\begin{aligned}-\log \left(h_{\theta}(x)\right) & \text { if } y=1 \\-\log \left(1-h_{\theta}(x)\right) & \text { if } y=0 \end{aligned}\right.$
+    - $-\frac{1}{m} \sum_{i=1}^{m}\left[y^{(i)} \log h_{\theta}\left(x^{(i)}\right)+\left(1-y^{(i)}\right) \log \left(1-h_{\theta}\left(x^{(i)}\right)\right)\right]$
+    - To get a convex function and avoid overfit, add a regularization term:
+    $J(\theta)=-\frac{1}{m} \sum_{i=1}^{m}\left[y^{(i)} \log h_{\theta}\left(x^{(i)}\right)+\left(1-y^{(i)}\right) \log \left(1-h_{\theta}\left(x^{(i)}\right)\right)\right]+\frac{\lambda}{2 m} \sum_{j=1}^{n} \theta_{j}^{2}$
+
+
+- Gradient descent:
+    - $\theta_{j}:=\theta_{j}-\alpha \frac{\partial}{\partial \theta_{j}} J(\theta)$
+    - Omit calculating the deriatives.
