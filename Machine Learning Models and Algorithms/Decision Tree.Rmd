@@ -1,0 +1,29 @@
+---
+title: "Decision Tree"
+author: 'Haolin Zhong (UNI: hz2771)'
+date: "2021/10/4"
+output: 
+  github_document:
+    pandoc_args: --webtex  
+---
+
+# Core ideas
+
+- Decision Tree algorithm selects features based on finding maximum 
+Information Gain $g$. 
+
+- $g(D|A) = H(D) - H(D|A)$
+
+- entrophy: $H(X)=-\sum_{i=1}^{n} p_{i} \log p_{i}$, used to evaluating how random
+a random variable can be.
+
+- conditional entrophy: $H(Y \mid X)=\displaystyle \sum_{i=1}^{n} p_{i} H\left(Y \mid X=x_{i}\right)$,
+the randomness of $Y$ given known $X$
+
+- By choosing a good feature as classification criteria, the entrophy will
+decrease(lower uncertainty).
+
+- some algorithms:
+    - ID3: use above algorithm
+    - C4.5: use Information Gain Proportion to select features (standardized information gain for features can be classified into more categories)
+    - CART: consist of feature selection, generate, prune
