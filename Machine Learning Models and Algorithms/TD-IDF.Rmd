@@ -1,0 +1,143 @@
+---
+title: "TD-IDF"
+author: 'Haolin Zhong (UNI: hz2771)'
+date: "2021/10/6"
+output: 
+    github_document:
+        pandoc_args: --webtex
+---
+
+# Core ideas
+
+## UGC-based recommendation
+
+- $p(u, i) = \displaystyle \sum_b n_{u, b}n_{b, i}$
+
+- p: the interest that the user $u$ holds for the item $i$
+
+- $n_{u, b}$: how many times the user gives tag b
+
+- $n_{b, i}$: how many times the item receives tag b
+
+- problem: may overweight popular tags
+
+
+## TF-IDF
+
+- $TF-IDF = TF \times IDF$
+
+- The importance of the word should increase with increasing term frequency (TF) in its document, and decrease with increasing appearance in the overall library (which is described by Inverse Document Frequency, IDF) (for standardizing those innate highly appeared words) .
+
+- TF: $TF_{i,j} = \frac {n_{i, j}}{n_{*,j}}$ i: word i, j: doc j
+
+- IDF: $IDF_i = log(\frac {N + 1}{N_i + 1})$
+
+
+## UGC with TF-IDF
+
+- $\mathrm{p}(\mathrm{u}, \mathrm{i})=\displaystyle \sum_{b} \frac{n_{u, b}}{\log \left(1+n_{b}^{(u)}\right)} \frac{n_{b, i}}{\log \left(1+n_{i}^{(u)}\right)}$
+
+- $n_b^{(u)}$: tag b has been used by how many users
+
+- $n_i^{(u)}$: item has been tagged by how many users
+
+# TF-IDF Practice
+
+## Import denpendencies
+```{python}
+import numpy as np
+import pandas as pd
+import math
+```
+
+## Define and preprocess data
+
+```{python}
+doc_a = "The cat sat on my bed"
+doc_b = "The dog sat on my knees"
+
+bow_a = doc_a.split(" ")
+bow_b = doc_b.split(" ")
+
+# Construct wordset
+word_set = set(bow_a).union(set(bow_b))
+```
+
+## Perform word count
+
+```{python}
+word_dict_a = dict.fromkeys(word_set, 0)
+word_dict_b = dict.fromkeys(word_set, 0)
+
+for word in bow_a:
+    word_dict_a[word] += 1
+
+for word in bow_b:
+    word_dict_b[word] += 1
+    
+
+```
+
+## Calculate TF
+
+```{python}
+def compute_tf(word_dict, bow):
+    tf_dict = {}
+    nbow_count = len(bow)
+    
+    for word, count in word_dict.items():
+        tf_dict[word] = count / nbow_count
+    
+    return tf_dict
+```
+
+## Calculate IDF
+
+```{python}
+def compute_idf(word_dict_list):
+    idf_dict = dict.fromkeys(word_dict_list[0], 0)
+    # number of documents
+    N = len(word_dict_list)
+    
+    for word_dict in word_dict_list:
+        for word, count in word_dict.items():
+            if count > 0:
+                idf_dict[word] += 1
+    
+    for word, ni in idf_dict.items():
+        idf_dict[word] = math.log10((N + 1) / (ni + 1))
+    
+    return idf_dict
+```
+
+## Calculate TF-IDF
+
+```{python}
+def compute_tf_idf(tf, idf):
+    tf_idf = {}
+    for word, tf_val in tf.items():
+        tf_idf[word] = tf_val * idf[word]
+    return tf_idf
+    
+```
+
+
+## Test
+```{python}
+tf_a = compute_tf(word_dict_a, bow_a)
+tf_b = compute_tf(word_dict_b, bow_b)
+
+idf = compute_idf([word_dict_a, word_dict_b])
+
+tf_idf_a = compute_tf_idf(tf_a, idf)
+tf_idf_b = compute_tf_idf(tf_b, idf)
+
+pd.DataFrame([tf_idf_a, tf_idf_b])
+```
+
+
+
+
+
+
+
